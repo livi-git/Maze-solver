@@ -14,10 +14,10 @@ class Main():
             self.maze=[]
             for line in file:
                 self.maze.append([char for char in line.rstrip("\n")])
-        print(self.maze)
         self.availableActions=[]
         self.rows = len(self.maze)-1
         self.columns = len(self.maze[0])-1
+        self.showMaze()
 
     def start(self):
         initAction = Action(None, None, 4, 0)
@@ -33,14 +33,14 @@ class Main():
                 break
         if completed:
             print("Reached")
+            self.updateMaze(final)
+            self.showMaze()
         else:
             print("No path available")
 
     def findAllActionsForAction(self, action):
-        print("findAllActionsForAction :: enter")
         isCompleted = self.isCompleted(action)
         if isCompleted:
-            print(len(self.availableActions))
             return isCompleted
         
         #check left
@@ -56,28 +56,39 @@ class Main():
         if self.isValidAction(action.row+1, action.column, action.parent):
             self.availableActions.append(Action(self.availableActions[0],"bottom", action.row+1, action.column))
         self.availableActions.pop(0)
-        print("findAllActionsForAction :: exit")
 
     def isValidAction(self, row, column, parent):
-        print("isValidAction :: enter")
         if (row<0 or column<0 or row > self.rows or column > self.columns or (parent and (parent.row == row and parent.column == column))):
-            print("isValidAction :: exit 1")
             return False
         elif self.maze[row][column] == "#":
-            print("isValidAction :: exit 2")
             return False
         else:
-            print("isValidAction :: exit 3")
             return True
 
     def isCompleted(self, action):
-        print("isCompleted :: enter")
         if self.maze[action.row][action.column] == "B":
-            print("isCompleted :: exit 1")
             return action
         else:
-            print("isCompleted :: exit 2")
             return False
+        
+    def updateMaze(self, action):
+        if self.maze[action.row][action.column] != "B" and self.maze[action.row][action.column] != "A":
+            self.maze[action.row][action.column] = "*"
+        elif action.parent == None:
+            return None
+        self.updateMaze(action.parent)
+        
+    def showMaze(self):
+        for row in self.maze:
+            print("-"*(len(row)*3))
+            for column in range(len(row)*3):
+                if column%3 !=0:
+                    print(" ", end="")
+                else:
+                    print('\033[31m'+row[column//3]+'\033[0m' if row[column//3]=="*" else '\033[32m'+row[column//3]+'\033[0m' if row[column//3]=="A" or row[column//3]=="B" else row[column//3], end="")
+            print("")
+        
+            
 
 
 
