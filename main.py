@@ -10,17 +10,25 @@ class Action():
         
 class Main():
     def __init__(self, filename):
+        self.startRow=-1
+        self.startColumn=-1
         with open(filename,'r') as file:
             self.maze=[]
+            counter=0
             for line in file:
                 self.maze.append([char for char in line.rstrip("\n")])
+                if "A" in line.rstrip("\n"):
+                    self.startRow=counter
+                    self.startColumn=line.index("A")
+                else:
+                    counter += 1
         self.availableActions=[]
         self.rows = len(self.maze)-1
         self.columns = len(self.maze[0])-1
         self.showMaze()
 
     def start(self):
-        initAction = Action(None, None, 4, 0)
+        initAction = Action(None, None, self.startRow, self.startColumn)
         self.availableActions.append(initAction)
         self.findAvailableActions()
 
@@ -56,6 +64,7 @@ class Main():
         if self.isValidAction(action.row+1, action.column, action.parent):
             self.availableActions.append(Action(self.availableActions[0],"bottom", action.row+1, action.column))
         self.availableActions.pop(0)
+        map(lambda x: x.toString(),self.availableActions)
 
     def isValidAction(self, row, column, parent):
         if (row<0 or column<0 or row > self.rows or column > self.columns or (parent and (parent.row == row and parent.column == column))):
